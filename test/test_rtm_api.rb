@@ -83,7 +83,7 @@ class RTMAPITest < Test::Unit::TestCase
       assert_equal(40, frob.length)
 
       RTM::API::PERMS.each do |p|
-         ra = RTM::API.uri_auth(RTM::API.params, p, frob)
+         ra = RTM::API.uri_auth(RTM::API.params, {'perm'=>p, 'frob'=>frob})
          assert_not_nil(ra)
          assert_equal(1, RTM::API::params.keys.size)
       end

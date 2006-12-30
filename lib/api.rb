@@ -90,10 +90,11 @@ tailor parameters into request uri.
 =begin rdoc
 tailor parameters into auth uri.
 =end
-   def API.uri_auth(params, perms, frob=nil)
+   def API.uri_auth(params, h)
       p = params.dup
-      p['perms'] = perms
-      p['frob']  = frob if frob
+      p['perms'] = h['perm']
+      p['frob']  = h['frob'] if h['frob']
+      p['callback'] = h['callback'] if h['callback']
 
       r  = AUTH_PATH + '?'
       r += p.collect { |k, v| [k, v].join('=') }.sort.join('&')
@@ -102,8 +103,8 @@ tailor parameters into auth uri.
       r
    end
 
-   def API.auth_uri(params, perms)
-      RTM_URI + uri_auth(params, perms)
+   def API.auth_uri(params, h)
+      RTM_URI + uri_auth(params, h)
    end
 
 =begin rdoc

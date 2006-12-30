@@ -16,6 +16,14 @@ module RTM
       API::TimeLines.create
    end
 
+   # use frob for Desktop Application.
+   # perm should be one of ['read', 'write', 'delete'].
+   def RTM.get_auth_url(h)
+      raise unless API::PERMS.include?(h['perm'])
+
+      API.auth_uri(API.params, h)
+   end
+
 
    class Contact
       attr_accessor :id, :fullname, :username
