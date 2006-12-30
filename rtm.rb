@@ -91,7 +91,7 @@ module RTM
          @modified = h['modified'] if h['modified']
          @name = h['name'] if h['name']
          @source = h['source'] if h['source']
-         @tags = h['tags'].first if h['tags']
+         @tags = h['tags'].first['tag'] if h['tags']
          @participants = h['participants'].first if h['participants']
          @notes = h['notes'].first if h['notes']
 

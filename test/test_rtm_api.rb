@@ -121,6 +121,7 @@ class RTMAPITest < Test::Unit::TestCase
       }
       assert_nothing_raised {
          checked = RTM::API::Auth.checkToken(RTM::API.params, RTM::API.token)
+         assert_not_nil(checked)
       }
    end
 
