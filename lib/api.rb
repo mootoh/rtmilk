@@ -218,6 +218,20 @@ rtm.auth API.
          p['list_id'] = list
 
          res = API.request(API.uri_req(p))
+         res['list'].first['taskseries'].first
+      end
+
+      def Tasks.delete(params, token, timeline, list, series, task)
+         p = params.dup
+         p['method'] = METHOD + '.delete'
+         p['auth_token'] = token
+         p['timeline'] = timeline
+         p['list_id'] = list
+         p['taskseries_id'] = series
+         p['task_id'] = task
+
+         res = API.request(API.uri_req(p))
+         res['list'].first['taskseries'].first
       end
 
       class Notes

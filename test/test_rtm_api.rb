@@ -163,6 +163,5 @@ class RTMAPITest < Test::Unit::TestCase
    def test_timelines_create
       timeline = RTM::API::TimeLines.create(RTM::API.params, RTM::API.token)
       assert_not_nil(timeline)
-      p timeline
    end
 end

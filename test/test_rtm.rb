@@ -52,7 +52,7 @@ class RTMTest < Test::Unit::TestCase
       assert_not_nil(@lists)
    end
 
-   def test_list_add
+   def test_lists_add
       l = RTM::Lists.add('rtmilk test')
       assert_not_nil(l)
    end
@@ -60,9 +60,17 @@ class RTMTest < Test::Unit::TestCase
    # -----------------------------------------------------------------
    # Tasks
    #
-   def test_task_add
-      t = RTM::Tasks.add('rtmilk test task', @lists[0].id)
+   def test_tasks_add
+      t = RTM::Tasks.add('rtmilk test task to add', @lists[0].id)
       assert_not_nil(t)
+   end
+
+   def test_tasks_delete
+      t = RTM::Tasks.add('rtmilk test task to delete', @lists[0].id)
+      assert_not_nil(t)
+
+      deleted = RTM::Tasks.delete(t.id, t.task.first.id, @lists[0].id)
+      assert_not_nil(deleted)
    end
 
    # -----------------------------------------------------------------

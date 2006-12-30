@@ -163,6 +163,13 @@ module RTM
       def Tasks.add(name, list)
          timeline = RTM.get_timeline
          t = API::Tasks.add(API.params, API.token, timeline, list, name)
+         TaskSeries.new t
+      end
+
+      def Tasks.delete(series, task, list)
+         timeline = RTM.get_timeline
+         t = API::Tasks.delete(API.params, API.token, timeline, list, series, task)
+         TaskSeries.new t
       end
 
       def [](i)
