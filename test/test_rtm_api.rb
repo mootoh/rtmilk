@@ -78,7 +78,7 @@ class RTMAPITest < Test::Unit::TestCase
    end
 
    def test_uri_auth_frob
-      frob = RTM::API::Auth.getFrob(RTM::API.params)
+      frob = RTM::API::Auth.getFrob
       assert_not_nil(frob)
       assert_equal(40, frob.length)
 
@@ -93,7 +93,7 @@ class RTMAPITest < Test::Unit::TestCase
 # Auth
 #
    def test_authGetFrob
-      frob = RTM::API::Auth.getFrob(RTM::API.params)
+      frob = RTM::API::Auth.getFrob
       assert_not_nil(frob)
       assert_equal(40, frob.length)
    end
@@ -120,16 +120,16 @@ class RTMAPITest < Test::Unit::TestCase
 
    def test_authCheckToken
       assert_raise(RTM::API::Error) {
-         RTM::API::Auth.checkToken(RTM::API.params, TOKEN + 'a')
+         RTM::API::Auth.checkToken(TOKEN + 'a')
       }
       assert_nothing_raised {
-         checked = RTM::API::Auth.checkToken(RTM::API.params, RTM::API.token)
+         checked = RTM::API::Auth.checkToken(RTM::API.token)
          assert_not_nil(checked)
       }
    end
 
    def test_taskGetList
-      tasks = RTM::API::Tasks.get(RTM::API.params, RTM::API.token)
+      tasks = RTM::API::Tasks.get
       assert_not_nil(tasks)
    end
 
@@ -161,7 +161,7 @@ class RTMAPITest < Test::Unit::TestCase
 # TimeLines API test
 #
    def test_timelines_create
-      timeline = RTM::API::TimeLines.create(RTM::API.params, RTM::API.token)
+      timeline = RTM::API::TimeLines.create
       assert_not_nil(timeline)
    end
 end

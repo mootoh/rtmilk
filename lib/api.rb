@@ -93,8 +93,7 @@ tailor parameters into auth uri.
    def API.uri_auth(params, perms, frob=nil)
       p = params.dup
       p['perms'] = perms
-
-      p['frob'] = frob if frob
+      p['frob']  = frob if frob
 
       r  = AUTH_PATH + '?'
       r += p.collect { |k, v| [k, v].join('=') }.sort.join('&')
@@ -117,6 +116,12 @@ process http request, return response
       res
    end
 
+   def API.get_params(method, h)
+      p = API.params.dup
+      p['method'] = method
+      p.merge(h)
+   end
+
    # ---------------------------------------------------------------
    # subclasses
    #
@@ -127,23 +132,23 @@ rtm.auth API.
    class Auth
       METHOD = 'rtm.auth'
 
-      def Auth.checkToken(params, token)
-         p = params.dup
+      def Auth.checkToken(token)
+         p = API.params.dup
          p['method'] = METHOD + '.checkToken'
          p['auth_token'] = token
          res = API.request(API.uri_req(p))
       end
 
-      def Auth.getFrob(params)
-         p = params.dup
+      def Auth.getFrob
+         p = API.params.dup
          p['method'] = METHOD + '.getFrob'
 
          res = API.request(API.uri_req(p))
          res['frob'].first
       end
 
-      def Auth.getToken(params, frob)
-         p = params.dup
+      def Auth.getToken(frob)
+         p = API.params.dup
          p['method'] = METHOD + '.getToken'
          p['frob']   = frob
 
@@ -161,10 +166,10 @@ rtm.auth API.
    class Lists
       METHOD = 'rtm.lists'
 
-      def Lists.get(params, token, alive_only=true)
-         p = params.dup
+      def Lists.get(alive_only=true)
+         p = API.params.dup
          p['method'] = METHOD + '.getList'
-         p['auth_token'] = token
+         p['auth_token'] = API.token
 
          res = API.request(API.uri_req(p))
          lists = res['lists'].first['list']
@@ -176,10 +181,10 @@ rtm.auth API.
          end
       end
 
-      def Lists.add(params, token, timeline, name, filter=nil)
-         p = params.dup
+      def Lists.add(timeline, name, filter=nil)
+         p = API.params.dup
          p['method'] = METHOD + '.add'
-         p['auth_token'] = token
+         p['auth_token'] = API.token
          p['timeline'] = timeline
          p['name'] = name
          p['filter'] = filter if filter
@@ -197,11 +202,11 @@ rtm.auth API.
    class Tasks
       METHOD = 'rtm.tasks'
 
-      def Tasks.get(params, token, list=nil, last_sync=nil)
-         p = params.dup
+      def Tasks.get(list=nil, last_sync=nil)
+         p = API.params.dup
 
          p['method'] = METHOD + '.getList'
-         p['auth_token'] = token
+         p['auth_token'] = API.token
          p['list_id'] = list if list
          p['last_sync'] = last_sync if last_sync
 
@@ -209,10 +214,10 @@ rtm.auth API.
          res['tasks'].first['list']
       end
 
-      def Tasks.add(params, token, timeline, list, name)
-         p = params.dup
+      def Tasks.add(timeline, list, name)
+         p = API.params.dup
          p['method'] = METHOD + '.add'
-         p['auth_token'] = token
+         p['auth_token'] = API.token
          p['timeline'] = timeline
          p['name'] = name
          p['list_id'] = list
@@ -221,10 +226,10 @@ rtm.auth API.
          res['list'].first['taskseries'].first
       end
 
-      def Tasks.delete(params, token, timeline, list, series, task)
-         p = params.dup
+      def Tasks.delete(timeline, list, series, task)
+         p = API.params.dup
          p['method'] = METHOD + '.delete'
-         p['auth_token'] = token
+         p['auth_token'] = API.token
          p['timeline'] = timeline
          p['list_id'] = list
          p['taskseries_id'] = series
@@ -287,10 +292,10 @@ rtm.auth API.
    class TimeLines
       METHOD = 'rtm.timelines'
 
-      def TimeLines.create(params, token)
-         p = params.dup
+      def TimeLines.create
+         p = API.params.dup
          p['method'] = METHOD + '.create'
-         p['auth_token'] = token
+         p['auth_token'] = API.token
 
          res = API.request(API.uri_req(p))
          t = res['timeline'].first

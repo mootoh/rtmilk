@@ -5,10 +5,6 @@
 # $Id: rtm.rb 565 2006-12-29 16:06:13Z takayama $
 #
 
-require 'net/http'
-require 'digest/md5'
-require 'rubygems'
-require 'xmlsimple'
 require 'lib/api.rb'
 
 =begin rdoc
@@ -17,7 +13,7 @@ access Remember the Milk REST APIs.
 module RTM
 
    def RTM.get_timeline
-      API::TimeLines.create(API.params, API.token)
+      API::TimeLines.create
    end
 
 
@@ -72,7 +68,7 @@ module RTM
       attr_accessor :ls
 
       def initialize
-         @ls = API::Lists.get(API.params, API.token).collect do |x|
+         @ls = API::Lists.get.collect do |x|
             List.new x
          end
       end
@@ -85,7 +81,7 @@ module RTM
 
       def Lists.add(name, filter=nil)
          timeline = RTM.get_timeline
-         l = API::Lists.add(API.params, API.token, timeline, name, filter)
+         l = API::Lists.add(timeline, name, filter)
          List.new l
       end # add
 
@@ -143,7 +139,7 @@ module RTM
       attr_accessor :ts
 
       def initialize(list=nil, last=nil)
-         @ts = API::Tasks.get(API.params, API.token, list, last).collect do |x|
+         @ts = API::Tasks.get(list, last).collect do |x|
             if x['taskseries']
                x['taskseries'].collect do |t|
                   TaskSeries.new t
@@ -162,13 +158,13 @@ module RTM
 
       def Tasks.add(name, list)
          timeline = RTM.get_timeline
-         t = API::Tasks.add(API.params, API.token, timeline, list, name)
+         t = API::Tasks.add(timeline, list, name)
          TaskSeries.new t
       end
 
       def Tasks.delete(series, task, list)
          timeline = RTM.get_timeline
-         t = API::Tasks.delete(API.params, API.token, timeline, list, series, task)
+         t = API::Tasks.delete(timeline, list, series, task)
          TaskSeries.new t
       end
 
@@ -183,3 +179,5 @@ module RTM
    end # Tasks
 
 end # RTM
+
+# vim:fdm=indent
