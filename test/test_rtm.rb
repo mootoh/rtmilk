@@ -3,7 +3,7 @@
 #
 # see http://d.hatena.ne.jp/secondlife/20060927/1159334813
 #
-# $Id: test_rtm.rb 565 2006-12-29 16:06:13Z takayama $
+# $Id$
 #
 
 $LOAD_PATH << File.dirname(__FILE__) + '/..'

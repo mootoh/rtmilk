@@ -2,7 +2,7 @@
 # for Remember the Milk REST API
 #     http://www.rememberthemilk.com/services/api/overview.rtm
 #
-# $Id: rtm.rb 565 2006-12-29 16:06:13Z takayama $
+# $Id$
 #
 
 require 'lib/api.rb'
