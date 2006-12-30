@@ -12,13 +12,25 @@ require 'test/unit'
 require 'rtm'
 
 class RTMTest < Test::Unit::TestCase
-   KEY = 'aaa'   # XXX specify API key
-   SEC = 'bbb'   # XXX specify shared secret
-   FROB = 'ccc'  # XXX enter some frob
+   CONFIG = '../config.dat' # config data file
+
+   KEY   = 'aaa' # XXX specify API key
+   SEC   = 'bbb' # XXX specify shared secret
+   FROB  = 'ccc' # XXX enter some frob
    TOKEN = 'ddd' # XXX enter some token
 
    def setup
-      RTM::API.init(:key=>KEY, :secret=>SEC, :token=>TOKEN)
+      conf = begin
+         Marshal.load(open(CONFIG))
+      rescue
+         { 
+            :key => KEY,
+            :secret => SEC,
+            :frob => FROB,
+            :token => TOKEN }
+      end
+
+      RTM::API.init(conf)
       @contact  = RTM::Contact.new(0)
       @group    = RTM::Group.new
       @list     = RTM::List.new(:id => 0)

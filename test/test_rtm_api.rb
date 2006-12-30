@@ -12,13 +12,25 @@ require 'test/unit'
 require 'rtm'
 
 class RTMAPITest < Test::Unit::TestCase
-   KEY = 'aaa'   # XXX specify API key
-   SEC = 'bbb'   # XXX specify shared secret
-   FROB = 'ccc'  # XXX enter some frob
+   CONFIG = '../config.dat' # config data file
+
+   KEY   = 'aaa' # XXX specify API key
+   SEC   = 'bbb' # XXX specify shared secret
+   FROB  = 'ccc' # XXX enter some frob
    TOKEN = 'ddd' # XXX enter some token
 
    def setup
-      RTM::API.init(:key=>KEY, :secret=>SEC, :frob=>FROB, :token=>TOKEN)
+      conf = begin
+         Marshal.load(open(CONFIG))
+      rescue
+         { 
+            :key => KEY,
+            :secret => SEC,
+            :frob => FROB,
+            :token => TOKEN }
+      end
+
+      RTM::API.init(conf)
       # @base  = RTM::API.new(KEY, SIG)
       # @test  = RTM::TestAPI.new(KEY, SIG)
       # @auth  = RTM::AuthAPI.new(KEY, SIG)
@@ -27,10 +39,6 @@ class RTMAPITest < Test::Unit::TestCase
    end
 
    def test_init
-      assert_equal(KEY, RTM::API.key)
-      assert_equal(SEC, RTM::API.sec)
-      assert_equal(FROB, RTM::API.frob)
-      assert_equal(TOKEN, RTM::API.token)
       assert_equal(1, RTM::API.params.size)
    end
 
@@ -112,13 +120,13 @@ class RTMAPITest < Test::Unit::TestCase
          RTM::API::Auth.checkToken(RTM::API.params, TOKEN + 'a')
       }
       assert_nothing_raised {
-         checked = RTM::API::Auth.checkToken(RTM::API.params, TOKEN)
+         checked = RTM::API::Auth.checkToken(RTM::API.params, RTM::API.token)
       }
    end
 
    def test_taskGetList
-      tasks = RTM::API::Tasks.get(RTM::API.params, TOKEN)
-      p tasks
+      tasks = RTM::API::Tasks.get(RTM::API.params, RTM::API.token)
+      assert_not_nil(tasks)
    end
 
 
