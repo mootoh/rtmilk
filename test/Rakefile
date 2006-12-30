@@ -1,0 +1,6 @@
+task :default => [:test]
+
+task :test do
+   ruby 'test_rtm.rb'
+   ruby 'test_rtm_api.rb'
+end
