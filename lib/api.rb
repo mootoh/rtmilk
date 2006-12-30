@@ -92,9 +92,9 @@ tailor parameters into auth uri.
 =end
    def API.uri_auth(params, h)
       p = params.dup
-      p['perms'] = h['perm']
-      p['frob']  = h['frob'] if h['frob']
-      p['callback'] = h['callback'] if h['callback']
+      p[:perms] = h[:perm]
+      p[:frob]  = h[:frob] if h[:frob]
+      p[:callback] = h[:callback] if h[:callback]
 
       r  = AUTH_PATH + '?'
       r += p.collect { |k, v| [k, v].join('=') }.sort.join('&')

@@ -19,9 +19,13 @@ module RTM
    # use frob for Desktop Application.
    # perm should be one of ['read', 'write', 'delete'].
    def RTM.get_auth_url(h)
-      raise unless API::PERMS.include?(h['perm'])
+      raise unless API::PERMS.include?(h[:perm])
 
       API.auth_uri(API.params, h)
+   end
+
+   def RTM.get_frob
+      API::Auth.getFrob
    end
 
 
