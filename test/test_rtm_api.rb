@@ -74,6 +74,7 @@ class RTMAPITest < Test::Unit::TestCase
 
    def test_auth_uri
       au = RTM::API.auth_uri(RTM::API.params, 'read')
+      assert_not_nil(au)
    end
 
    def test_uri_auth_frob
@@ -81,9 +82,11 @@ class RTMAPITest < Test::Unit::TestCase
       assert_not_nil(frob)
       assert_equal(40, frob.length)
 
-      ra = RTM::API.uri_auth(RTM::API.params, 'read', frob)
-      assert_not_nil(ra)
-      assert_equal(1, RTM::API.params.keys.size)
+      RTM::API::PERMS.each do |p|
+         ra = RTM::API.uri_auth(RTM::API.params, p, frob)
+         assert_not_nil(ra)
+         assert_equal(1, RTM::API::params.keys.size)
+      end
    end
 
 # -------------------------------------------------------------------
@@ -152,5 +155,14 @@ class RTMAPITest < Test::Unit::TestCase
       RTM::API.init(:key => KEY)
 
       assert_equal(KEY, RTM::API.key)
+   end
+
+# -------------------------------------------------------------------
+# TimeLines API test
+#
+   def test_timelines_create
+      timeline = RTM::API::TimeLines.create(RTM::API.params, RTM::API.token)
+      assert_not_nil(timeline)
+      p timeline
    end
 end

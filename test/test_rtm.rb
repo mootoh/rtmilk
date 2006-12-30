@@ -44,8 +44,32 @@ class RTMTest < Test::Unit::TestCase
       assert_instance_of RTM::Lists, @lists
    end
 
+   # -----------------------------------------------------------------
+   # Lists
+   #
    def test_lists0
       assert_not_nil(@list)
       assert_not_nil(@lists)
+   end
+
+   def test_list_add
+      l = RTM::Lists.add('rtmilk test')
+      assert_not_nil(l)
+   end
+
+   # -----------------------------------------------------------------
+   # Tasks
+   #
+   def test_task_add
+      t = RTM::Tasks.add('rtmilk test task', @lists[0].id)
+      assert_not_nil(t)
+   end
+
+   # -----------------------------------------------------------------
+   # TimeLine
+   #
+   def test_get_timeline
+      timeline = RTM.get_timeline
+      assert_not_nil(timeline)
    end
 end

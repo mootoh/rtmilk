@@ -15,6 +15,12 @@ require 'lib/api.rb'
 access Remember the Milk REST APIs.
 =end
 module RTM
+
+   def RTM.get_timeline
+      API::TimeLines.create(API.params, API.token)
+   end
+
+
    class Contact
       attr_accessor :id, :fullname, :username
 
@@ -77,8 +83,19 @@ module RTM
          end
       end
 
-      def add(name, filter)
+      def Lists.add(name, filter=nil)
+         timeline = RTM.get_timeline
+         l = API::Lists.add(API.params, API.token, timeline, name, filter)
+         List.new l
       end # add
+
+      def [](i)
+         to_a[i]
+      end
+
+      def size
+         to_a.size
+      end
    end # Lists
 
    class TaskSeries
@@ -141,6 +158,11 @@ module RTM
          @ts.each do |x|
             yield x
          end
+      end
+
+      def Tasks.add(name, list)
+         timeline = RTM.get_timeline
+         t = API::Tasks.add(API.params, API.token, timeline, list, name)
       end
 
       def [](i)

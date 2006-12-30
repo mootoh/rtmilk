@@ -9,6 +9,7 @@ require 'net/http'
 require 'digest/md5'
 require 'rubygems'
 require 'xmlsimple'
+require 'uri'
 
 =begin rdoc
 access Remember the Milk REST APIs.
@@ -22,6 +23,8 @@ class API
    RTM_URI   = 'www.rememberthemilk.com'
    REST_PATH = '/services/rest/'
    AUTH_PATH = '/services/auth/'
+
+   PERMS = ['read', 'write', 'delete']
 
 =begin rdoc
    Exception class, takes msg and code.
@@ -81,7 +84,7 @@ tailor parameters into request uri.
       r  = REST_PATH + '?' 
       r += params.collect { |k, v| [k, v].join('=') }.sort.join('&')
       r += '&api_sig=' + sign(params)
-      r
+      URI.escape r
    end
 
 =begin rdoc
@@ -139,19 +142,15 @@ rtm.auth API.
          res['frob'].first
       end
 
-      def getToken(frob)
-         params_orig = @params.dup
-         begin
-            @params['method'] += '.getToken'
-            @params['frob'] = frob
+      def Auth.getToken(params, frob)
+         p = params.dup
+         p['method'] = METHOD + '.getToken'
+         p['frob']   = frob
 
-            res = request(uri_req)
-            res['auth'].first['token'].first
-         ensure
-            @params = params_orig
-         end
+         res = API.request(API.uri_req(p))
+         res['auth'].first['token'].first
       end
-   end # AuthAPI
+   end # Auth
 
    class ConcatcsAPI < API
    end # ConcatcsAPI
@@ -176,6 +175,17 @@ rtm.auth API.
             lists
          end
       end
+
+      def Lists.add(params, token, timeline, name, filter=nil)
+         p = params.dup
+         p['method'] = METHOD + '.add'
+         p['auth_token'] = token
+         p['timeline'] = timeline
+         p['name'] = name
+         p['filter'] = filter if filter
+
+         res = API.request(API.uri_req(p))
+      end
    end # ListsAPI
 
    class ReflectionAPI < API
@@ -199,9 +209,20 @@ rtm.auth API.
          res['tasks'].first['list']
       end
 
+      def Tasks.add(params, token, timeline, list, name)
+         p = params.dup
+         p['method'] = METHOD + '.add'
+         p['auth_token'] = token
+         p['timeline'] = timeline
+         p['name'] = name
+         p['list_id'] = list
+
+         res = API.request(API.uri_req(p))
+      end
+
       class Notes
       end # Notes
-   end # TasksAPI
+   end # Tasks
 
    class TestAPI < API
       METHOD = 'rtm.test'
@@ -249,7 +270,17 @@ rtm.auth API.
    class TimeAPI < API
    end # TimeAPI
 
-   class TimeLinesAPI < API
+   class TimeLines
+      METHOD = 'rtm.timelines'
+
+      def TimeLines.create(params, token)
+         p = params.dup
+         p['method'] = METHOD + '.create'
+         p['auth_token'] = token
+
+         res = API.request(API.uri_req(p))
+         t = res['timeline'].first
+      end
    end # TimeLinesAPI
 
    class TimeZonesAPI < API
