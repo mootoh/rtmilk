@@ -94,7 +94,12 @@ module RTM
          @tags = h['tags'].first if h['tags']
          @participants = h['participants'].first if h['participants']
          @notes = h['notes'].first if h['notes']
-         @task = Task.new(h['task'].first) if h['task']
+
+         if h['task']
+            @task = h['task'].collect do |t|
+               Task.new(t)
+            end.flatten.compact
+         end
       end
 
       class Task
@@ -123,17 +128,27 @@ module RTM
       def initialize(list=nil, last=nil)
          @ts = API::Tasks.get(API.params, API.token, list, last).collect do |x|
             if x['taskseries']
-               TaskSeries.new x['taskseries'].first
+               x['taskseries'].collect do |t|
+                  TaskSeries.new t
+               end
             else
                nil
             end
-         end.compact
+         end.flatten.compact
       end
 
       def each
          @ts.each do |x|
             yield x
          end
+      end
+
+      def [](i)
+         to_a[i]
+      end
+
+      def size
+         to_a.size
       end
 
    end # Tasks
