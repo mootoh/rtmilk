@@ -11,14 +11,10 @@ require 'rubygems'
 require 'xmlsimple'
 require 'uri'
 
-=begin rdoc
-access Remember the Milk REST APIs.
-=end
+# access the {Remember the Milk}[http://www.rememberthemilk.com/] REST APIs.
 module RTM
 
-=begin rdoc
-API classes.
-=end
+# API classes.
 class API
    RTM_URI   = 'www.rememberthemilk.com'
    REST_PATH = '/services/rest/'
@@ -26,18 +22,17 @@ class API
 
    PERMS = ['read', 'write', 'delete']
 
-=begin rdoc
-   Exception class, takes msg and code.
-=end
-   class Error < StandardError
-      def initialize(hash)
-         err = hash['err'].first
-         @code = err['code'].to_i
-         msg = err['msg'] + ' (error code=' + err['code'] + ')'
-         super(msg)
-      end
-   end
+   #--
+   # -----------------------------------------------------------------
+   # class methods
+   #++
+   
+   def API.key ; @@key ; end
+   def API.params ; @@params ; end
+   def API.token ; @@token ; end
 
+   # initialize the API context.
+   # make sure to call this before using any API calls.
    def API.init(h)
       @@key = h[:key] if h.has_key? :key
       @@sec = h[:secret] if h.has_key? :secret
@@ -48,38 +43,7 @@ class API
       @@http = Net::HTTP.new(RTM_URI)
    end
 
-   def API.key
-      @@key
-   end
-
-   def API.sec
-      @@sec
-   end
-
-   def API.frob
-      @@frob
-   end
-
-   def API.token
-      @@token
-   end
-
-   def API.params
-      @@params
-   end
-
-=begin rdoc
-      sign parameters.
-=end
-   def API.sign(params)
-      sig = @@sec
-      sig += params.collect { |k, v| [k, v].join('') }.sort.join('')
-      sig = Digest::MD5.hexdigest(sig)
-   end
-
-=begin rdoc
-tailor parameters into request uri.
-=end
+   # tailor parameters into request uri.
    def API.uri_req(params)
       r  = REST_PATH + '?' 
       r += params.collect { |k, v| [k, v].join('=') }.sort.join('&')
@@ -87,9 +51,7 @@ tailor parameters into request uri.
       URI.escape r
    end
 
-=begin rdoc
-tailor parameters into auth uri.
-=end
+   # tailor parameters into auth uri.
    def API.uri_auth(params, h)
       p = params.dup
       p[:perms] = h[:perm]
@@ -103,13 +65,12 @@ tailor parameters into auth uri.
       r
    end
 
+   # construct auth uri from params.
    def API.auth_uri(params, h)
       RTM_URI + uri_auth(params, h)
    end
 
-=begin rdoc
-process http request, return response
-=end
+   # process http request, return response.
    def API.request(uri)
       head, body = @@http.get(uri)
       res = XmlSimple.new.xml_in(body)
@@ -117,22 +78,37 @@ process http request, return response
       res
    end
 
-   def API.get_params(method, h)
-      p = API.params.dup
-      p['method'] = method
-      p.merge(h)
+   private
+
+   # sign parameters.
+   def API.sign(params)
+      sig = @@sec
+      sig += params.collect { |k, v| [k, v].join('') }.sort.join('')
+      sig = Digest::MD5.hexdigest(sig)
+   end
+end # API
+
+#--
+# ---------------------------------------------------------------
+# subclasses
+#++
+
+class API
+   # Exception class, takes msg and code.
+   class Error < StandardError
+      def initialize(h)
+         err = h['err'].first
+         @code = err['code'].to_i
+         msg = err['msg'] + ' (error code=' + err['code'] + ')'
+         super(msg)
+      end
    end
 
-   # ---------------------------------------------------------------
-   # subclasses
-   #
-
-=begin rdoc
-rtm.auth API.
-=end
+   # rtm.auth API.
    class Auth
       METHOD = 'rtm.auth'
 
+      # see spec[http://www.rememberthemilk.com/services/api/methods/rtm.auth.checkToken.rtm].
       def Auth.checkToken(token)
          p = API.params.dup
          p['method'] = METHOD + '.checkToken'
@@ -140,6 +116,7 @@ rtm.auth API.
          res = API.request(API.uri_req(p))
       end
 
+      # see spec[http://www.rememberthemilk.com/services/api/methods/rtm.auth.getFrob.rtm].
       def Auth.getFrob
          p = API.params.dup
          p['method'] = METHOD + '.getFrob'
@@ -148,6 +125,7 @@ rtm.auth API.
          res['frob'].first
       end
 
+      # see {spec}[http://www.rememberthemilk.com/services/api/methods/rtm.auth.getToken.rtm].
       def Auth.getToken(frob)
          p = API.params.dup
          p['method'] = METHOD + '.getToken'
@@ -158,16 +136,52 @@ rtm.auth API.
       end
    end # Auth
 
-   class ConcatcsAPI < API
-   end # ConcatcsAPI
+   class Contacts
+      def Contacts.add
+      end
 
-   class GroupsAPI < API
-   end # GroupsAPI
+      def Contacts.delete
+      end
+
+      def Contacts.getList
+      end
+   end # Contacts
+
+   class Groups
+      def Groups.add
+      end
+
+      def Groups.addContact
+      end
+
+      def Groups.delete
+      end
+
+      def Groups.getList
+      end
+
+      def Groups.removeContact
+      end
+   end # Groups
 
    class Lists
       METHOD = 'rtm.lists'
 
-      def Lists.get(alive_only=true)
+      def Lists.add(timeline, name, filter=nil)
+         p = API.params.dup
+         p['method'] = METHOD + '.add'
+         p['auth_token'] = API.token
+         p['timeline'] = timeline
+         p['name'] = name
+         p['filter'] = filter if filter
+
+         res = API.request(API.uri_req(p))
+      end
+
+      def Lists.archive
+      end
+
+      def Lists.getList(alive_only=true)
          p = API.params.dup
          p['method'] = METHOD + '.getList'
          p['auth_token'] = API.token
@@ -182,38 +196,31 @@ rtm.auth API.
          end
       end
 
-      def Lists.add(timeline, name, filter=nil)
-         p = API.params.dup
-         p['method'] = METHOD + '.add'
-         p['auth_token'] = API.token
-         p['timeline'] = timeline
-         p['name'] = name
-         p['filter'] = filter if filter
-
-         res = API.request(API.uri_req(p))
+      def Lists.setDefaultList
       end
-   end # ListsAPI
 
-   class ReflectionAPI < API
-   end # ReflectionAPI
+      def Lists.setName
+      end
 
-   class SettingsAPI < API
-   end # SettingsAPI
+      def Lists.unarchive
+      end
+   end # Lists
+
+   class Reflection
+      def Reflection.getMethodInfo
+      end
+
+      def Reflection.getMethods
+      end
+   end # Reflection
+
+   class Settings
+      def Settings.getList
+      end
+   end # Settings
 
    class Tasks
       METHOD = 'rtm.tasks'
-
-      def Tasks.get(list=nil, last_sync=nil)
-         p = API.params.dup
-
-         p['method'] = METHOD + '.getList'
-         p['auth_token'] = API.token
-         p['list_id'] = list if list
-         p['last_sync'] = last_sync if last_sync
-
-         res = API.request(API.uri_req(p))
-         res['tasks'].first['list']
-      end
 
       def Tasks.add(timeline, list, name)
          p = API.params.dup
@@ -225,6 +232,12 @@ rtm.auth API.
 
          res = API.request(API.uri_req(p))
          res['list'].first['taskseries'].first
+      end
+
+      def Tasks.addTags
+      end
+
+      def Tasks.complete
       end
 
       def Tasks.delete(timeline, list, series, task)
@@ -240,20 +253,70 @@ rtm.auth API.
          res['list'].first['taskseries'].first
       end
 
-      class Notes
+      def Tasks.getList(list=nil, last_sync=nil)
+         p = API.params.dup
+
+         p['method'] = METHOD + '.getList'
+         p['auth_token'] = API.token
+         p['list_id'] = list if list
+         p['last_sync'] = last_sync if last_sync
+
+         res = API.request(API.uri_req(p))
+         res['tasks'].first['list']
+      end
+
+      def Tasks.moveProiority
+      end
+
+      def Tasks.moveTo
+      end
+
+      def Tasks.postpone
+      end
+
+      def Tasks.removeTags
+      end
+
+      def Tasks.setDueDate
+      end
+
+      def Tasks.setEstimate
+      end
+
+      def Tasks.setName
+      end
+
+      def Tasks.setPriority
+      end
+
+      def Tasks.setRecurrence
+      end
+
+      def Tasks.setTags
+      end
+
+      def Tasks.setURL
+      end
+
+      def Tasks.uncomplete
+      end
+
+      class Notes # TODO
+         def Notes.add # TODO
+         end
+
+         def Notes.delete # TODO
+         end
+
+         def Notes.edit # TODO
+         end
       end # Notes
    end # Tasks
 
-   class TestAPI < API
+   class Test # TODO
       METHOD = 'rtm.test'
 
-      def initialize(k, s)
-         @k = k
-         @s = s
-         @http = Net::HTTP.new(RTM_URI)
-      end
-
-      def echo
+      def Test.echo # TODO
          req = REST_PATH + '?method=' + METHOD + '.echo' + '&api_key=' + @k
          puts req
 
@@ -262,7 +325,7 @@ rtm.auth API.
          puts b
       end
 
-      def login
+      def Test.login # TODO
          params = {
             'method' => METHOD + '.login',
             'api_key' => @k
@@ -285,10 +348,15 @@ rtm.auth API.
          puts r
          puts b
       end
-   end # TestAPI
+   end # Test
 
-   class TimeAPI < API
-   end # TimeAPI
+   class Time # TODO
+      def Time.convert # TODO
+      end
+
+      def Time.parse # TODO
+      end
+   end # Time
 
    class TimeLines
       METHOD = 'rtm.timelines'
@@ -301,14 +369,18 @@ rtm.auth API.
          res = API.request(API.uri_req(p))
          t = res['timeline'].first
       end
-   end # TimeLinesAPI
+   end # TimeLines
 
-   class TimeZonesAPI < API
-   end # TimeZonesAPI
+   class TimeZones # TODO
+      def TimeZones.getList
+      end
+   end # TimeZones
 
-   class TransactionsAPI < API
-   end # TransactionsAPI
-
+   class Transactions
+      def Transactions.undo
+      end
+   end # Transactions
 end # API
 
 end # RTM
+# vim:fdm=indent
