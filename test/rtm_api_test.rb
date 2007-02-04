@@ -3,16 +3,13 @@
 #
 # see http://d.hatena.ne.jp/secondlife/20060927/1159334813
 #
-# $Id$
+# $Id: test_rtm_api.rb 10 2006-12-30 06:37:24Z takayama $
 #
 
-$LOAD_PATH << File.dirname(__FILE__) + '/..'
-
-require 'test/unit'
-require 'rtm'
+require File.dirname(__FILE__) + '/test_helper.rb'
 
 class RTMAPITest < Test::Unit::TestCase
-   CONFIG = '../config.dat' # config data file
+   CONFIG = File.dirname(__FILE__) + '/../config.dat' # config data file
 
    KEY   = 'aaa' # XXX specify API key
    SEC   = 'bbb' # XXX specify shared secret
@@ -129,7 +126,7 @@ class RTMAPITest < Test::Unit::TestCase
    end
 
    def test_taskGetList
-      tasks = RTM::API::Tasks.get
+      tasks = RTM::API::Tasks.getList
       assert_not_nil(tasks)
    end
 

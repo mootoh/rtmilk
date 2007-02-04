@@ -1,0 +1,5 @@
+2007-02-05  mootoh@gmail.com
+
+	* CHANGELOG.txt: 
+   packed gem.
+

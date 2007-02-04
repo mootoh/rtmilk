@@ -2,10 +2,10 @@
 # for Remember the Milk REST API
 #     http://www.rememberthemilk.com/services/api/overview.rtm
 #
-# $Id$
+# $Id: rtm.rb 10 2006-12-30 06:37:24Z takayama $
 #
 
-require 'lib/api.rb'
+require 'rtmilk/api.rb'
 
 =begin rdoc
 access Remember the Milk REST APIs.
@@ -80,7 +80,7 @@ module RTM
       attr_accessor :ls
 
       def initialize
-         @ls = API::Lists.get.collect do |x|
+         @ls = API::Lists.getList.collect do |x|
             List.new x
          end
       end
@@ -151,7 +151,7 @@ module RTM
       attr_accessor :ts
 
       def initialize(list=nil, last=nil)
-         @ts = API::Tasks.get(list, last).collect do |x|
+         @ts = API::Tasks.getList(list, last).collect do |x|
             if x['taskseries']
                x['taskseries'].collect do |t|
                   TaskSeries.new t
