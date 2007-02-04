@@ -3,6 +3,7 @@ README.txt
 CHANGELOG.txt
 Manifest.txt
 setup.rb
+lib/rtmilk/api.rb
 lib/rtmilk/version.rb
 lib/rtmilk.rb
 test/test_helper.rb
