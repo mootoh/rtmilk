@@ -151,15 +151,20 @@ module RTM
       attr_accessor :ts
 
       def initialize(list=nil, last=nil)
-         @ts = API::Tasks.getList(list, last).collect do |x|
-            if x['taskseries']
-               x['taskseries'].collect do |t|
-                  TaskSeries.new t
+         lists = API::Tasks.getList(list, last)
+         if lists
+            @ts = lists.collect do |x|
+               if x['taskseries']
+                  x['taskseries'].collect do |t|
+                     TaskSeries.new t
+                  end
+               else
+                  nil
                end
-            else
-               nil
-            end
-         end.flatten.compact
+            end.flatten.compact
+         else
+            @ts = []
+         end
       end
 
       def each
