@@ -301,11 +301,48 @@ class API
       def Tasks.uncomplete
       end
 
-      class Notes # TODO
-         def Notes.add # TODO
+      class Notes
+         METHOD = 'rtm.tasks.notes'
+=begin
+api_key (Required)
+    Your API application key. See here for more details.
+timeline (Required)
+    The timeline within which to run a method. See here for more details.
+list_id (Required)
+    The id of the list to perform an action on.
+taskseries_id (Required)
+    The id of the task series to perform an action on.
+task_id (Required)
+    The id of the task to perform an action on.
+note_title (Required)
+    The title of a note.
+note_text (Required)
+    The body of a note. 
+=end
+         def Notes.add(timeline, list, series, task, title, text)
+            p = API.params.dup
+            p['method'] = METHOD + '.add'
+            p['auth_token'] = API.token
+
+            p['timeline'] = timeline
+            p['list_id'] = list
+            p['taskseries_id'] = series
+            p['task_id'] = task
+            p['note_title'] = title
+            p['note_text'] = text
+
+            res = API.request(API.uri_req(p))
          end
 
-         def Notes.delete # TODO
+         def Notes.delete(timeline, note)
+            p = API.params.dup
+            p['method'] = METHOD + '.delete'
+            p['auth_token'] = API.token
+
+            p['timeline'] = timeline
+            p['note_id'] = note
+
+            res = API.request(API.uri_req(p))
          end
 
          def Notes.edit # TODO

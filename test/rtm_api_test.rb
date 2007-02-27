@@ -130,6 +130,21 @@ class RTMAPITest < Test::Unit::TestCase
       assert_not_nil(tasks)
    end
 
+   # -----------------------------------------------------------------
+   # Task.Notes
+   #
+   def test_taskNotesAdd
+      list = RTM::API::Lists.getList.first
+      taskSeries = RTM::Tasks.new(list['id'])[0]
+      RTM::API::Tasks::Notes.add(
+         timeline = RTM::API::TimeLines.create,
+         list['id'],
+         taskSeries.id,
+         taskSeries.task.first.id,
+         'testing Note title',
+         'testing Note body')
+   end
+
 
 =begin
    def test_testEcho
