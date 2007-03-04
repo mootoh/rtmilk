@@ -26,6 +26,7 @@ class RTMAuthAPITest < Test::Unit::TestCase
       end
 
       RTM::API.init(conf[:key], conf[:sec], conf)
+      @perms = 'read'
    end
 
    def teardown
@@ -47,13 +48,22 @@ class RTMAuthAPITest < Test::Unit::TestCase
       return frob
    end
 
-   def get_token(frob, perms)
+   def get_token(frob)
       res, err = RTM::Auth::GetToken.new(frob).invoke
       assert_equal('ok', err)
       assert_equal(40, res[:token].length)
-      assert_equal(perms, res[:perms])
+      assert_equal(@perms, res[:perms])
       return res[:token]
    end
+
+   def get_token_interactive
+      frob = get_frob
+      url = RTM::API.get_auth_url(@perms, frob)
+      prompt_for_auth(url)
+
+      get_token(frob)
+   end
+
 
    # -----------------------------------------------------------------
    # tests
@@ -65,26 +75,15 @@ class RTMAuthAPITest < Test::Unit::TestCase
    # this test requires user authentication manually, so disabed normally.
    # def test_getToken
    def not_test_getToken
-      perms = 'read'
-
-      frob = get_frob
-      url = RTM::API.get_auth_url(perms, frob)
-      prompt_for_auth(url)
-
-      get_token(frob, perms)
+      get_token_interactive
    end
 
    def test_checkToken
-      perms = 'read'
+      token = get_token_interactive
 
-      frob = get_frob
-      url = RTM::API.get_auth_url(perms, frob)
-      prompt_for_auth(url)
-
-      token = get_token(frob, perms)
       auth, err = RTM::Auth::CheckToken.new(token).invoke
       assert_equal('ok', err)
-      assert_equal(perms, auth[:perms])
+      assert_equal(@perms, auth[:perms])
    end
 end
 # vim:fdm=indent
