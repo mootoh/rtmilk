@@ -16,7 +16,11 @@ class TestAPI
    end
 
    def parse_result(result)
-      [result['method'].first, result['stat']]
+      if result['stat'] == 'ok'
+         [result['method'].first, result['stat']]
+      else
+         ["error", result['stat']]
+      end
    end
 end # TestAPI
 
@@ -32,9 +36,7 @@ class RTMAPITest < Test::Unit::TestCase
       rescue
          { 
             :key => KEY,
-            :secret => SEC,
-            :frob => FROB,
-            :token => TOKEN
+            :sec => SEC,
          }
       end
 
