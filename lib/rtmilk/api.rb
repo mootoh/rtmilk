@@ -44,6 +44,9 @@ public
    # invoke a method
    def invoke
       head, body = @@http.get(make_url)
+      puts '--------------------------------------------------'
+      puts body
+      puts '--------------------------------------------------'
       result = XmlSimple.new.xml_in(body)
       response, err = parse_result(result)
    end
@@ -77,51 +80,17 @@ private
 
    def make_url
       r  = REST_PATH + '?' 
-      param = @param.dup
-      param['api_key'] = @@key
-      r += param.collect { |k, v| [k, v].join('=') }.sort.join('&')
+
+      @param = {} unless @param
+      @param['method'] = @method
+      @param['api_key'] = @@key
+      r += @param.collect { |k, v| [k, v].join('=') }.sort.join('&')
       r += '&api_sig=' + sign
       URI.escape r
    end
-
-
-=begin
-   # tailor parameters into request uri.
-   def API.uri_req(params)
-      r  = REST_PATH + '?' 
-      r += params.collect { |k, v| [k, v].join('=') }.sort.join('&')
-      r += '&api_sig=' + sign(params)
-      URI.escape r
-   end
-
-   # tailor parameters into auth uri.
-   def API.uri_auth(params, h)
-      p = params.dup
-      p[:perms] = h[:perm]
-      p[:frob]  = h[:frob] if h[:frob]
-      p[:callback] = h[:callback] if h[:callback]
-
-      r  = AUTH_PATH + '?'
-      r += p.collect { |k, v| [k, v].join('=') }.sort.join('&')
-
-      r += '&api_sig=' + sign(p)
-      r
-   end
-
-   # construct auth uri from params.
-   def API.auth_uri(params, h)
-      RTM_URI + uri_auth(params, h)
-   end
-
-   # process http request, return response.
-   def API.request(uri)
-      head, body = @@http.get(uri)
-      res = XmlSimple.new.xml_in(body)
-      raise Error, res if 'fail' == res['stat']
-      res
-   end
-=end
 end # API
 
 end # RTM
+require 'rtmilk/api/auth'
+
 # vim:fdm=indent

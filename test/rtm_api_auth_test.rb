@@ -11,6 +11,7 @@ class RTMAuthAPITest < Test::Unit::TestCase
 
    KEY   = 'aaa' # XXX specify API key
    SEC   = 'bbb' # XXX specify shared secret
+   TOKEN = 'ccc' # XXX specify obtained token
 
    def setup
       conf = begin
@@ -25,16 +26,32 @@ class RTMAuthAPITest < Test::Unit::TestCase
       end
 
       RTM::API.init(conf[:key], conf[:sec], conf)
-      @aapi = RTM::AuthAPI.new
    end
 
    def teardown
    end
 
    def test_getFrob
+      res, err = RTM::Auth::GetFrob.new.invoke
+      assert_equal('ok', err)
+      assert_equal(40, res.length)
    end
 
-   def test_getToken
+   # this test requires user authentication manually, so disabed normally.
+   # def test_getToken
+   def not_test_getToken
+      perms = 'read'
+
+      frob, err = RTM::Auth::GetFrob.new.invoke
+      url = RTM::API.get_auth_url(perms, frob)
+      puts 'authorize this url : ' + url
+      puts 'then, push enter here.'
+      gets
+
+      res, err = RTM::Auth::GetToken.new(frob).invoke
+      assert_equal('ok', err)
+      assert_equal(40, res[:token].length)
+      assert_equal(perms, res[:perms])
    end
 
    def test_checkToken
