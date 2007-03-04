@@ -24,15 +24,11 @@ class RTMAPITest < Test::Unit::TestCase
             :key => KEY,
             :secret => SEC,
             :frob => FROB,
-            :token => TOKEN }
+            :token => TOKEN
+         }
       end
 
       RTM::API.init(conf)
-      # @base  = RTM::API.new(KEY, SIG)
-      # @test  = RTM::TestAPI.new(KEY, SIG)
-      # @auth  = RTM::AuthAPI.new(KEY, SIG)
-      # @lists = RTM::ListsAPI.new(KEY, SIG)
-      # @tasks = RTM::TasksAPI.new(KEY, SIG)
    end
 
    def test_init
@@ -40,15 +36,10 @@ class RTMAPITest < Test::Unit::TestCase
    end
 
    def test_instance
-      # assert_instance_of RTM::API, @base
-      # assert_instance_of RTM::TestAPI, @test
-      # assert_instance_of RTM::AuthAPI, @auth
-      # assert_instance_of RTM::ListsAPI, @lists
-      # assert_instance_of RTM::TasksAPI, @tasks
    end
 
 # -------------------------------------------------------------------
-# API
+# test Helper
 #
    def test_sign
      sign = RTM::API.sign(RTM::API.params)
@@ -136,15 +127,26 @@ class RTMAPITest < Test::Unit::TestCase
    def test_taskNotesAdd
       list = RTM::API::Lists.getList.first
       taskSeries = RTM::Tasks.new(list['id'])[0]
-      RTM::API::Tasks::Notes.add(
+      result = RTM::API::Tasks::Notes.add(
          timeline = RTM::API::TimeLines.create,
          list['id'],
          taskSeries.id,
          taskSeries.task.first.id,
          'testing Note title',
          'testing Note body')
+
+      assert_equal('ok', result['stat'])
+      note_id = result['transaction'].first['id']
    end
 
+   def test_taskNotesEdit
+      list = RTM::API::Lists.getList.first
+      taskSeries = RTM::Tasks.new(list['id'])[0]
+      RTM::API::Tasks::Notes.add(
+         timeline = RTM::API::TimeLines.create,
+         'testing Note title',
+         'testing Note body')
+   end
 
 =begin
    def test_testEcho

@@ -345,7 +345,17 @@ note_text (Required)
             res = API.request(API.uri_req(p))
          end
 
-         def Notes.edit # TODO
+         def Notes.edit(timeline, note, title, text)
+            p = API.params.dup
+            p['method'] = METHOD + '.edit'
+            p['auth_token'] = API.token
+
+            p['timeline'] = timeline
+            p['note_id'] = note
+            p['note_title'] = title
+            p['note_text'] = text
+
+            res = API.request(API.uri_req(p))
          end
       end # Notes
    end # Tasks
