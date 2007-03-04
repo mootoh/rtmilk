@@ -14,11 +14,14 @@ module RTM
 
 # API module
 module API
+
+private
    RTM_URI   = 'www.rememberthemilk.com'
    REST_PATH = '/services/rest/'
    AUTH_PATH = '/services/auth/'
    PERMS = ['read', 'write', 'delete']
 
+public
    # initialize the API context.
    def API.init(key, sec, option=nil)
       @@key = key
@@ -38,20 +41,11 @@ module API
    # getter methods
    def API.key; @@key; end
 
-   # sign parameters
-   def API.sign(param)
-      sig = @@sec
-      sig += param.collect { |k, v| [k, v].join('') }.sort.join('')
-      Digest::MD5.hexdigest(sig)
-   end
-
-   def sign
-      API.sign(@param)
-   end
-
    # invoke a method
    def invoke
-      sig = sign
+      head, body = @@http.get(make_url)
+      result = XmlSimple.new.xml_in(body)
+      response, err = parse_result(result)
    end
 
    # get Auth URL (both desktop/webapp)
@@ -68,6 +62,28 @@ module API
       r += '&api_sig=' + sig
       r
    end
+
+   def sign
+      API.sign(@param)
+   end
+
+private
+   # sign parameters
+   def API.sign(param)
+      sig = @@sec
+      sig += param.collect { |k, v| [k, v].join('') }.sort.join('')
+      Digest::MD5.hexdigest(sig)
+   end
+
+   def make_url
+      r  = REST_PATH + '?' 
+      param = @param.dup
+      param['api_key'] = @@key
+      r += param.collect { |k, v| [k, v].join('=') }.sort.join('&')
+      r += '&api_sig=' + sign
+      URI.escape r
+   end
+
 
 =begin
    # tailor parameters into request uri.
