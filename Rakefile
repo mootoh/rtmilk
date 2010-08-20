@@ -30,6 +30,7 @@ RDOC_OPTS = ['--quiet', '--title', "rtmilk documentation",
     "--opname", "index.html",
     "--line-numbers", 
     "--main", "README.txt",
+    "-diagram",
     "--inline-source"]
 
 class Hoe

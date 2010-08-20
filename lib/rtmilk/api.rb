@@ -12,8 +12,8 @@ require 'uri'
 # access the {Remember the Milk}[http://www.rememberthemilk.com/] REST APIs.
 module RTM
 
-# API module
-module API
+# API class
+class API
 
 private
    RTM_URI   = 'www.rememberthemilk.com'
@@ -35,20 +35,24 @@ public
          end
       end
 
-      @@http = Net::HTTP.new(RTM_URI)
+   end
+
+   def API.token=(token)
+      @@token = token
    end
 
    # getter methods
    def API.key; @@key; end
+   def API.token; @@token; end
 
    # invoke a method
    def invoke
-      head, body = @@http.get(make_url)
-      puts '--------------------------------------------------'
-      puts body
-      puts '--------------------------------------------------'
-      result = XmlSimple.new.xml_in(body)
-      response, err = parse_result(result)
+      response = Net::HTTP.get(RTM_URI, make_url)
+      # puts '--------------------------------------------------'
+      # puts response
+      # puts '--------------------------------------------------'
+      result = XmlSimple.new.xml_in(response)
+      ret = parse_result(result)
    end
 
    # get Auth URL (both desktop/webapp)
@@ -78,19 +82,40 @@ private
       Digest::MD5.hexdigest(sig)
    end
 
+   def initialize(method, token=nil, timeline=nil)
+      @method   = method
+      @token    = token ? token : nil
+      @timeline = timeline ? timeline : nil
+      @param = {}
+   end
+
    def make_url
       r  = REST_PATH + '?' 
 
-      @param = {} unless @param
+      @param = {} if @param == nil
       @param['method'] = @method
+      @param['auth_token'] = @token unless @token == nil
+      @param['timeline'] = @timeline unless @timeline == nil
       @param['api_key'] = @@key
       r += @param.collect { |k, v| [k, v].join('=') }.sort.join('&')
       r += '&api_sig=' + sign
       URI.escape r
    end
+
+protected
+   # parse result
+   def parse_result(result)
+      unless result['stat'] == 'ok'
+         raise RTM::Error, result['err'].first['msg']
+      end
+   end
 end # API
 
 end # RTM
 require 'rtmilk/api/auth'
+require 'rtmilk/api/timelines'
+require 'rtmilk/api/lists'
+require 'rtmilk/api/tasks'
+require 'rtmilk/api/notes'
 
 # vim:fdm=indent

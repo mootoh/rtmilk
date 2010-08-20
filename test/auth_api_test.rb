@@ -1,32 +1,22 @@
 #
 # tests for RTM::Auth API.
 #
-# see http://d.hatena.ne.jp/secondlife/20060927/1159334813
-#
 
 require File.dirname(__FILE__) + '/test_helper.rb'
 
 class RTMAuthAPITest < Test::Unit::TestCase
    CONFIG = File.dirname(__FILE__) + '/../config.dat' # config data file
 
-   KEY   = 'aaa' # XXX specify API key
-   SEC   = 'bbb' # XXX specify shared secret
-   TOKEN = 'ccc' # XXX specify obtained token
-
    def setup
       conf = begin
          Marshal.load(open(CONFIG))
       rescue
-         { 
-            :key => KEY,
-            :secret => SEC,
-            :frob => FROB,
-            :token => TOKEN
-         }
+         puts 'please run make_config.rb first.'
+         exit
       end
 
       RTM::API.init(conf[:key], conf[:sec], conf)
-      @perms = 'read'
+      @perms = 'delete'
    end
 
    def teardown
@@ -42,15 +32,13 @@ class RTMAuthAPITest < Test::Unit::TestCase
    end
 
    def get_frob
-      frob, err = RTM::Auth::GetFrob.new.invoke
-      assert_equal('ok', err)
+      frob = RTM::Auth::GetFrob.new.invoke
       assert_equal(40, frob.length)
       return frob
    end
 
    def get_token(frob)
-      res, err = RTM::Auth::GetToken.new(frob).invoke
-      assert_equal('ok', err)
+      res = RTM::Auth::GetToken.new(frob).invoke
       assert_equal(40, res[:token].length)
       assert_equal(@perms, res[:perms])
       return res[:token]
@@ -72,17 +60,22 @@ class RTMAuthAPITest < Test::Unit::TestCase
       get_frob
    end
 
+   def test_invalidToken
+      assert_raise(RTM::Error) {
+         RTM::Auth::GetToken.new('detarame').invoke
+      }
+   end
+
    # this test requires user authentication manually, so disabed normally.
-   # def test_getToken
    def not_test_getToken
       get_token_interactive
    end
 
-   def test_checkToken
+   # this test requires user authentication manually, so disabed normally.
+   def not_test_checkToken
       token = get_token_interactive
 
-      auth, err = RTM::Auth::CheckToken.new(token).invoke
-      assert_equal('ok', err)
+      auth = RTM::Auth::CheckToken.new(token).invoke
       assert_equal(@perms, auth[:perms])
    end
 end

@@ -4,71 +4,57 @@
 module RTM
 module Auth
 
-class GetFrob
-   include API
-
-   # return [frob, err]
+class GetFrob < RTM::API
+   # return frob
    def parse_result(result)
-      if result['stat'] == 'ok'
-         [result['frob'].first, result['stat']]
-      else
-         [result['err'].first['msg'], result['stat']]
-      end
+      super
+      result['frob'].first
    end
 
    def initialize
-      @method = 'rtm.auth.getFrob'
+      super 'rtm.auth.getFrob'
    end
 end # GetFrob
 
-class GetToken
-   include API
-
-   # return [{:token, :perms, :user => {id, name, fullname}}, err]
+class GetToken < RTM::API
+   # return {:token, :perms, :user => {id, name, fullname}}
    def parse_result(result)
+      super
       Auth.parse_result_auth(result)
    end
 
    def initialize(frob)
-      @method = 'rtm.auth.getToken'
+      super 'rtm.auth.getToken'
       @param = {:frob => frob}
    end
 end # GetToken
 
-class CheckToken
-   include API
-
-   # return [{:token, :perms, :user => {id, name, fullname}}, err]
+class CheckToken < RTM::API
+   # return {:token, :perms, :user => {id, name, fullname}}
    def parse_result(result)
+      super
       Auth.parse_result_auth(result)
    end
 
    def initialize(token)
-      @method = 'rtm.auth.checkToken'
+      super 'rtm.auth.checkToken'
       @param = {:auth_token => token}
    end
 end # CheckToken
 
 private
-# return [{:token, :perms, :user => {id, name, fullname}}, err]
+# return {:token, :perms, :user => {id, name, fullname}}
 def Auth.parse_result_auth(result)
-   stat = result['stat']
-
-   if 'ok' == stat
-      auth = result['auth'].first
-      user = auth['user'].first
-      parsed = {
-         :token => auth['token'].first,
-         :perms => auth['perms'].first,
-         :user  => {
-            :id => user['id'],
-            :name => user['username'],
-            :fullname => user['fullname'] }
-      }
-      [parsed, stat]
-   else
-      [result['err'].first['msg'], stat]
-   end
+   auth = result['auth'].first
+   user = auth['user'].first
+   parsed = {
+      :token => auth['token'].first,
+      :perms => auth['perms'].first,
+      :user  => {
+         :id => user['id'],
+         :name => user['username'],
+         :fullname => user['fullname'] }
+   }
 end
 
 end # Auth

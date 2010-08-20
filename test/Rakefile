@@ -1,6 +1,7 @@
 task :default => [:test]
 
 task :test do
-   ruby 'rtm_test.rb'
-   ruby 'rtm_api_test.rb'
+   ruby 'make_config.rb'
+   # ruby 'rtm_api_test.rb'
+   # ruby 'rtm_test.rb'
 end

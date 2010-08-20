@@ -1,5 +1,28 @@
+2007-03-17  mootoh@gmail.com
+
+	* 0.3.0
+	based on rev36.
+	RTM::Note added.
+	That is used by taskMap.
+
+2007-03-16  mootoh@gmail.com
+
+	* 0.2.0
+	RTM::Task is now creatable/deletable in easy way.
+
+2007-03-10  mootoh@gmail.com
+
+	* CHANGELOG.txt: 
+	all tests passed.
+
+2007-03-08  mootoh@gmail.com
+
+	* CHANGELOG.txt: 
+	architecture totally rewrited.
+	add tasks.notes stuff.
+
 2007-02-05  mootoh@gmail.com
 
 	* CHANGELOG.txt: 
-   packed gem.
+	packed gem.
 
