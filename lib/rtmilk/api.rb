@@ -7,7 +7,7 @@ require 'net/http'
 require 'digest/md5'
 require 'rubygems'
 require 'xmlsimple'
-require 'uri'
+require 'open-uri'
 
 # access the {Remember the Milk}[http://www.rememberthemilk.com/] REST APIs.
 module RTM
@@ -16,7 +16,7 @@ module RTM
 class API
 
 private
-   RTM_URI   = 'www.rememberthemilk.com'
+   RTM_URI   = 'https://api.rememberthemilk.com'
    REST_PATH = '/services/rest/'
    AUTH_PATH = '/services/auth/'
    PERMS = ['read', 'write', 'delete']
@@ -47,7 +47,7 @@ public
 
    # invoke a method
    def invoke
-      response = Net::HTTP.get(RTM_URI, make_url)
+      response = URI.join(RTM_URI, make_url).read
       # puts '--------------------------------------------------'
       # puts response
       # puts '--------------------------------------------------'
