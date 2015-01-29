@@ -1,4 +1,4 @@
-README.txt
+README.md
 Rakefile
 CHANGELOG.txt
 Manifest.txt
@@ -15,7 +15,6 @@ lib/rtmilk/error.rb
 lib/rtmilk/version.rb
 lib/rtmilk.rb
 test/auth_api_test.rb
-test/error_test.rb
 test/lists_api_test.rb
 test/make_config.rb
 test/notes_api_test.rb
