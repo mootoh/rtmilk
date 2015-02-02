@@ -16,12 +16,20 @@ module RTM
 class API
 
 private
-   RTM_URI   = 'https://api.rememberthemilk.com'
+   RTM_DOMAIN = 'rememberthemilk.com'
    REST_PATH = '/services/rest/'
    AUTH_PATH = '/services/auth/'
    PERMS = ['read', 'write', 'delete']
 
 public
+  def api_host
+    'https://api.' + RTM_DOMAIN
+  end
+
+  def API.auth_host
+    'http://www.' + RTM_DOMAIN
+  end
+
    # initialize the API context.
    def API.init(key, sec, option=nil)
       @@key = key
@@ -47,7 +55,7 @@ public
 
    # invoke a method
    def invoke
-      response = URI.join(RTM_URI, make_url).read
+      response = URI.join(api_host, make_url).read
       # puts '--------------------------------------------------'
       # puts response
       # puts '--------------------------------------------------'
@@ -64,7 +72,7 @@ public
 
       sig = API.sign(param)
 
-      r  = 'http://' + RTM_URI + AUTH_PATH + '?'
+      r  = [auth_host, AUTH_PATH].join + '?'
       r += param.collect { |k, v| [k, v].join('=') }.sort.join('&')
       r += '&api_sig=' + sig
       r
